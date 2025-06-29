@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import PyPDF2
 import numpy as np
@@ -6,7 +7,17 @@ from sentence_transformers import SentenceTransformer
 from transformers import pipeline
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
-generator = pipeline("text-generation", model="gpt2")
+
+hf_token = os.getenv("HF_TOKEN")
+
+generator = pipeline(
+    "text-generation",
+    model="mistralai/Mistral-7B-Instruct-v0.3",
+    token=hf_token,
+    max_length=512,
+    do_sample=True,
+    temperature=0.7
+)
 
 chunks = []
 index = None
@@ -35,13 +46,25 @@ def search_similar_chunks(question, top_k=5):
 
 def get_answer_from_llm(context_chunks, question):
     context = "\n\n".join(context_chunks)
-    prompt = f"Contexto:\n{context}\n\nPergunta:\n{question}\n\nResposta:"
-    response = generator(prompt, max_length=300, do_sample=True, temperature=0.7)
-    return response[0]['generated_text']
+    prompt = f"""Baseado no contexto abaixo, responda de forma objetiva à pergunta.
 
-st.title("Chat com PDF sem SentencePiece")
+Contexto:
+{context}
 
-uploaded_files = st.file_uploader("Upload de PDFs", type="pdf", accept_multiple_files=True)
+Pergunta:
+{question}
+
+Resposta:"""
+
+    try:
+        response = generator(prompt)
+        return response[0]['generated_text']
+    except Exception as e:
+        return f"Erro ao gerar resposta: {e}"
+
+st.title("Chatbot with PDFs using Mistral model")
+
+uploaded_files = st.file_uploader("📄 Faça upload de PDFs", type="pdf", accept_multiple_files=True)
 
 if uploaded_files:
     all_texts = [extract_text_from_pdf(f) for f in uploaded_files]
@@ -50,11 +73,13 @@ if uploaded_files:
         chunks.extend(split_text(text))
     embeddings = generate_embeddings(chunks)
     index = create_faiss_index(embeddings)
-    st.success(f"Indexados {len(chunks)} chunks.")
+    st.success(f"✅ Indexados {len(chunks)} chunks.")
 
 if index:
     question = st.text_input("Digite sua pergunta:")
     if question:
-        relevant_chunks = search_similar_chunks(question)
-        answer = get_answer_from_llm(relevant_chunks, question)
+        with st.spinner("🔎 Buscando resposta..."):
+            relevant_chunks = search_similar_chunks(question)
+            answer = get_answer_from_llm(relevant_chunks, question)
+        st.markdown("### 🧠 Resposta:")
         st.write(answer)
