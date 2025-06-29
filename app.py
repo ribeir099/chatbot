@@ -14,8 +14,8 @@ generator = pipeline(
     "text-generation",
     model="CohereLabs/c4ai-command-r-plus",
     token=hf_token,
-    max_length=4096,
-    max_new_tokens=4096,
+    max_length=2048,
+    max_new_tokens=2048,
     do_sample=True,
     temperature=0.2
 )
