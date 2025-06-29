@@ -12,7 +12,7 @@ hf_token = os.getenv("HF_TOKEN")
 
 generator = pipeline(
     "text-generation",
-    model="mistralai/Mistral-7B-Instruct-v0.3",
+    model="mistralai/Mistral-7B-Instruct-v0.2",
     token=hf_token,
     max_length=512,
     do_sample=True,
