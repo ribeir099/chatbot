@@ -12,7 +12,7 @@ hf_token = os.getenv("HF_TOKEN")
 
 generator = pipeline(
     "text-generation",
-    model="gpt2",
+    model="CohereLabs/c4ai-command-r-plus",
     token=hf_token,
     max_length=4096,
     max_new_tokens=4096,
