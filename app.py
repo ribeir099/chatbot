@@ -14,7 +14,7 @@ generator = pipeline(
     "text-generation",
     model="mistralai/Mistral-7B-Instruct-v0.2",
     token=hf_token,
-    max_length=512,
+    max_length=4096,
     do_sample=True,
     temperature=0.7
 )
