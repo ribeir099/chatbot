@@ -15,8 +15,9 @@ generator = pipeline(
     model="gpt2",
     token=hf_token,
     max_length=4096,
+    max_new_tokens=4096,
     do_sample=True,
-    temperature=0.7
+    temperature=0.2
 )
 
 chunks = []
@@ -62,7 +63,7 @@ Resposta:"""
     except Exception as e:
         return f"Erro ao gerar resposta: {e}"
 
-st.title("Chatbot with PDFs using Mistral model")
+st.title("Chatbot with PDFs")
 
 uploaded_files = st.file_uploader("📄 Faça upload de PDFs", type="pdf", accept_multiple_files=True)
 
